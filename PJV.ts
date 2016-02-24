@@ -1,3 +1,13 @@
+declare var exports;
+
+interface PJVResult {
+    valid: boolean;
+    critical?: Object;
+    errors?: Array<any>;
+    warnings?: Array<any>;
+    recommendations?: Array<any>;
+}
+
 (function(exports) {
 
     /* Parse the incoming string as JSON, validate it against the spec for package.json
@@ -12,11 +22,12 @@
 
     var PJV = exports.PJV;
 
-    PJV.getSpecMap = function (specName) {
+    PJV.getSpecMap = function (specName: string) {
+        let ret: any;
 
         if (specName == "npm") {
             // https://npmjs.org/doc/json.html
-            return {
+            ret = {
                 "name":         {"type": "string", required: true, format: PJV.packageFormat},
                 "version":      {"type": "string", required: true, format: PJV.versionFormat},
                 "description":  {"type": "string", warning: true},
@@ -51,7 +62,7 @@
 
         } else if (specName == "commonjs_1.0") {
             // http://wiki.commonjs.org/wiki/Packages/1.0
-            return {
+            ret = {
                 "name":         {"type": "string", required: true, format: PJV.packageFormat},
                 "description":  {"type": "string", required: true},
                 "version":      {"type": "string", required: true, format: PJV.versionFormat},
@@ -76,7 +87,7 @@
 
         } else if (specName == "commonjs_1.1") {
             // http://wiki.commonjs.org/wiki/Packages/1.1
-            return {
+            ret = {
                 "name":         {"type": "string", required: true, format: PJV.packageFormat},
                 "version":      {"type": "string", required: true, format: PJV.versionFormat},
                 "main":         {"type": "string", required: true},
@@ -103,9 +114,10 @@
 
         } else {
             // Unrecognized spec
-            return false;
+            ret = null;
         }
 
+        return ret;
     };
 
     PJV.parse = function (data) {
@@ -113,7 +125,7 @@
             // It's just a string
             return "Invalid data - Not a string";
         }
-        var parsed;
+        var parsed: Object;
         try {
             parsed = JSON.parse(data);
         } catch (e) {
@@ -132,7 +144,7 @@
         options = options || {};
         specName = specName || "npm";
         var parsed = PJV.parse(data),
-            out = {"valid": false};
+            out: PJVResult = {"valid": false};
 
 
         if (typeof parsed == "string") {
